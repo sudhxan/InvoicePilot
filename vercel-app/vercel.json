@@ -4,12 +4,6 @@
       "maxDuration": 30
     }
   },
-  "builds": [
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
