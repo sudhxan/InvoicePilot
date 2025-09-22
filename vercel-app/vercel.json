@@ -1,0 +1,23 @@
+{
+  "functions": {
+    "api/upload.py": {
+      "maxDuration": 30
+    }
+  },
+  "builds": [
+    {
+      "src": "api/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
+}

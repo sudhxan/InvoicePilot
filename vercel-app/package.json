@@ -1,0 +1,21 @@
+{
+  "name": "invoicepilot-vercel",
+  "version": "1.0.0",
+  "description": "InvoicePilot - AI-Powered Invoice Data Extraction (Vercel Edition)",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "start": "vercel dev"
+  },
+  "keywords": [
+    "invoice",
+    "ai",
+    "pdf",
+    "data-extraction",
+    "gemini",
+    "excel"
+  ],
+  "author": "InvoicePilot",
+  "license": "MIT"
+}
