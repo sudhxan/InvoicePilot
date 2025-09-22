@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoicePilot | AI-Powered Invoice Data Extraction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .app-header {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 16px;
+            color: white;
+        }
+
+        .app-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+        }
+
+        .app-header .tagline {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .main-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .main-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .main-header p {
+            font-size: 16px;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        /* Progress Steps */
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 60px;
+            gap: 40px;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .step-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .step-circle.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .step-circle.inactive {
+            background: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .step-circle.inactive:hover {
+            background: #cbd5e1;
+            color: #64748b;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            max-width: 120px;
+        }
+
+        .progress-line {
+            width: 80px;
+            height: 2px;
+            background: #e2e8f0;
+            margin: 0 20px;
+            align-self: flex-start;
+            margin-top: 24px;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: #3b82f6;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: -0.02em;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .api-note {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .api-note a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .api-note a:hover {
+            text-decoration: underline;
+        }
+
+        .note-text {
+            color: #f59e0b;
+            font-weight: 500;
+        }
+
+        /* Column Configuration */
+        .column-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .add-column-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .add-column-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+
+        .column-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .column-input {
+            flex: 1;
+        }
+
+        .column-input input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+
+        .column-input input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .column-input input::placeholder {
+            color: #9ca3af;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 18px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .remove-btn:hover {
+            background: #fef2f2;
+            transform: scale(1.1);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #9ca3af;
+            background: #f3f4f6;
+        }
+
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Process Button */
+        .process-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .process-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .process-btn:hover {
+            background: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(5, 150, 105, 0.25);
+        }
+
+        /* Loading and Results */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            table-layout: fixed;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 0;
+        }
+
+        .result-table th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .result-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #d1fae5;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .download-btn {
+            background: #059669;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(5, 150, 105, 0.2);
+        }
+
+        .download-btn:hover {
+            background: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .download-section {
+            text-align: center;
+            padding: 24px;
+            background: #f0fdf4;
+            border-radius: 12px;
+            border: 1px solid #bbf7d0;
+            margin-bottom: 24px;
+        }
+
+        .download-section h3 {
+            color: #065f46;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .toggle-btn {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        .toggle-btn.active {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        .data-preview {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .data-preview.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+        }
+
+        .data-preview.visible {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .progress-container {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .progress-line {
+                display: none;
+            }
+
+            .column-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-section {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- App Header -->
+        <div class="app-header">
+            <h1>InvoicePilot</h1>
+            <div class="tagline">AI-Powered Invoice Data Extraction to Excel</div>
+        </div>
+
+        <!-- Main Header -->
+        <div class="main-header">
+            <h2>Upload PDF invoices, extract data using AI, and export to Excel with your custom columns</h2>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-container">
+            <div class="progress-step">
+                <div class="step-circle active" id="step1" onclick="goToStep(1)">1</div>
+                <div class="step-title">API Setup</div>
+                <div class="step-description">Configure Gemini API key</div>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="step-circle inactive" id="step2" onclick="goToStep(2)">2</div>
+                <div class="step-title">Define Columns</div>
+                <div class="step-description">Set up Excel columns</div>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="step-circle inactive" id="step3" onclick="goToStep(3)">3</div>
+                <div class="step-title">Upload & Process</div>
+                <div class="step-description">Upload PDF invoices</div>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="step-circle inactive" id="step4" onclick="goToStep(4)">4</div>
+                <div class="step-title">Export Data</div>
+                <div class="step-description">Download Excel file</div>
+            </div>
+        </div>
+
+        <form id="invoiceForm" enctype="multipart/form-data">
+            <!-- Step 1: API Configuration -->
+            <div class="form-section" id="apiSection">
+                <div class="section-header">
+                    <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2L3 7v11a1 1 0 001 1h12a1 1 0 001-1V7l-7-5z"/>
+                    </svg>
+                    <h2 class="section-title">Step 1: API Configuration</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="api_key">Google Gemini API Key</label>
+                    <input type="password" id="api_key" name="api_key" placeholder="Enter your Gemini API key..." required>
+                </div>
+                
+                <div class="api-note">
+                    Get your API key from <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a><br>
+                    <span class="note-text">Note: This app extracts text from PDFs and uses Gemini Pro for intelligent data extraction</span>
+                </div>
+            </div>
+
+            <!-- Step 2: Column Configuration -->
+            <div class="form-section" id="columnSection">
+                <div class="section-header">
+                    <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    <h2 class="section-title">Step 2: Define Excel Columns</h2>
+                </div>
+
+                <div class="column-header">
+                    <button type="button" class="add-column-btn" onclick="addColumn()">Add Column</button>
+                </div>
+
+                <div id="columnList">
+                    <div class="column-row">
+                        <div class="column-input">
+                            <input type="text" name="column_name" placeholder="Invoice Number" value="Invoice Number" required>
+                        </div>
+                        <div class="column-input">
+                            <input type="text" name="column_description" placeholder="The invoice number or ID" value="The invoice number or ID" required>
+                        </div>
+                        <button type="button" class="remove-btn" onclick="removeColumn(this)">✕</button>
+                    </div>
+                    <div class="column-row">
+                        <div class="column-input">
+                            <input type="text" name="column_name" value="Date" required>
+                        </div>
+                        <div class="column-input">
+                            <input type="text" name="column_description" value="Invoice date" required>
+                        </div>
+                        <button type="button" class="remove-btn" onclick="removeColumn(this)">✕</button>
+                    </div>
+                    <div class="column-row">
+                        <div class="column-input">
+                            <input type="text" name="column_name" value="Vendor" required>
+                        </div>
+                        <div class="column-input">
+                            <input type="text" name="column_description" value="Vendor or supplier name" required>
+                        </div>
+                        <button type="button" class="remove-btn" onclick="removeColumn(this)">✕</button>
+                    </div>
+                    <div class="column-row">
+                        <div class="column-input">
+                            <input type="text" name="column_name" value="Total Amount" required>
+                        </div>
+                        <div class="column-input">
+                            <input type="text" name="column_description" value="Total invoice amount" required>
+                        </div>
+                        <button type="button" class="remove-btn" onclick="removeColumn(this)">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Upload PDF Invoices -->
+            <div class="form-section" id="uploadSection">
+                <div class="section-header">
+                    <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"/>
+                    </svg>
+                    <h2 class="section-title">Step 3: Upload PDF Invoices</h2>
+                </div>
+
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="file" name="file" accept=".pdf" class="file-input" required>
+                    <div class="upload-content">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">Drag & drop PDF invoices here, or click to select files</div>
+                        <div class="upload-subtext">Supports multiple PDF files - text will be extracted and analyzed with AI</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Button -->
+            <div class="process-section">
+                <button type="submit" class="process-btn">Process Invoices</button>
+            </div>
+        </form>
+
+        <!-- Loading Section -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your invoice with Gemini 2.5 Pro...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="result-section" id="resultSection">
+            <h2>Extracted Data</h2>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let columnCount = 4;
+
+        // File upload handling
+        let fileInput = document.getElementById('file');
+        const uploadArea = document.getElementById('uploadArea');
+        let selectedFiles = null;
+
+        fileInput.addEventListener('change', function(e) {
+            selectedFiles = e.target.files;
+            updateUploadArea(selectedFiles);
+        });
+
+        // Drag and drop handling
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                selectedFiles = files;
+                fileInput.files = files;
+                updateUploadArea(files);
+            }
+        });
+
+        function updateUploadArea(files) {
+            if (files && files.length > 0) {
+                const fileName = files[0].name;
+                const fileSize = (files[0].size / (1024 * 1024)).toFixed(2); // Convert to MB
+                
+                uploadArea.innerHTML = `
+                    <input type="file" id="file" name="file" accept=".pdf" class="file-input" required>
+                    <div class="upload-content">
+                        <div class="upload-icon" style="color: #059669; font-size: 42px;">✅</div>
+                        <div class="upload-text" style="color: #059669; font-weight: 600;">File uploaded successfully!</div>
+                        <div class="upload-subtext" style="color: #374151; font-weight: 500; margin-top: 8px;">
+                            📄 ${fileName} (${fileSize} MB)
+                        </div>
+                        <div class="upload-subtext" style="margin-top: 8px;">
+                            Click to change file or drag another file
+                        </div>
+                    </div>
+                `;
+                
+                // Re-attach the change event listener and set the files
+                const newFileInput = document.getElementById('file');
+                
+                // Create a new FileList and assign it
+                const dt = new DataTransfer();
+                for (let i = 0; i < files.length; i++) {
+                    dt.items.add(files[i]);
+                }
+                newFileInput.files = dt.files;
+                
+                newFileInput.addEventListener('change', function(e) {
+                    selectedFiles = e.target.files;
+                    updateUploadArea(selectedFiles);
+                });
+                
+                // Update global reference
+                fileInput = newFileInput;
+            }
+        }
+
+        // Column management
+        function addColumn() {
+            const columnList = document.getElementById('columnList');
+            const newColumn = document.createElement('div');
+            newColumn.className = 'column-row';
+            newColumn.innerHTML = `
+                <div class="column-input">
+                    <input type="text" name="column_name" placeholder="Column Name" required>
+                </div>
+                <div class="column-input">
+                    <input type="text" name="column_description" placeholder="Description" required>
+                </div>
+                <button type="button" class="remove-btn" onclick="removeColumn(this)">✕</button>
+            `;
+            columnList.appendChild(newColumn);
+            columnCount++;
+        }
+
+        function removeColumn(button) {
+            if (columnCount > 1) {
+                button.parentElement.remove();
+                columnCount--;
+            }
+        }
+
+        // Progress step management
+        let currentStep = 1;
+
+        function updateProgress(step) {
+            currentStep = step;
+            for (let i = 1; i <= 4; i++) {
+                const circle = document.getElementById(`step${i}`);
+                if (i <= step) {
+                    circle.classList.remove('inactive');
+                    circle.classList.add('active');
+                } else {
+                    circle.classList.remove('active');
+                    circle.classList.add('inactive');
+                }
+            }
+        }
+
+        function goToStep(step) {
+            // Allow navigation to any step for now
+            updateProgress(step);
+            
+            // Scroll to the appropriate section
+            let targetSection;
+            switch(step) {
+                case 1:
+                    targetSection = document.getElementById('apiSection');
+                    break;
+                case 2:
+                    targetSection = document.getElementById('columnSection');
+                    break;
+                case 3:
+                    targetSection = document.getElementById('uploadSection');
+                    break;
+                case 4:
+                    targetSection = document.getElementById('resultSection');
+                    break;
+            }
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Form submission
+        document.getElementById('invoiceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const apiKey = document.getElementById('api_key').value;
+            const fileInputElement = document.getElementById('file');
+            const file = fileInputElement.files[0] || (selectedFiles && selectedFiles[0]);
+            
+            if (!apiKey) {
+                showAlert('Please enter your Gemini API key', 'error');
+                return;
+            }
+            
+            if (!file) {
+                showAlert('Please select a PDF file', 'error');
+                return;
+            }
+
+            // Collect column configuration
+            const columns = [];
+            const columnRows = document.querySelectorAll('.column-row');
+            columnRows.forEach(row => {
+                const name = row.querySelector('input[name="column_name"]').value;
+                const description = row.querySelector('input[name="column_description"]').value;
+                if (name && description) {
+                    columns.push({ name: name, description: description });
+                }
+            });
+
+            if (columns.length === 0) {
+                showAlert('Please add at least one column configuration', 'error');
+                return;
+            }
+
+            formData.append('api_key', apiKey);
+            formData.append('file', file);
+            formData.append('column_config', JSON.stringify(columns));
+
+            // Show loading and update progress
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            updateProgress(3);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+
+                if (result.success) {
+                    updateProgress(4);
+                    showResults(result);
+                } else {
+                    showAlert(result.error || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showAlert('Network error: ' + error.message, 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            const existingAlert = container.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function toggleDataPreview() {
+            const previewDiv = document.getElementById('dataPreview');
+            const toggleBtn = document.getElementById('togglePreviewBtn');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (previewDiv.classList.contains('hidden')) {
+                previewDiv.classList.remove('hidden');
+                previewDiv.classList.add('visible');
+                toggleBtn.classList.add('active');
+                toggleIcon.innerHTML = `
+                    <path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                `;
+                toggleText.textContent = 'Hide Data Preview';
+            } else {
+                previewDiv.classList.remove('visible');
+                previewDiv.classList.add('hidden');
+                toggleBtn.classList.remove('active');
+                toggleIcon.innerHTML = `
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+                toggleText.textContent = 'View Data Preview';
+            }
+        }
+
+        function showResults(result) {
+            const resultSection = document.getElementById('resultSection');
+            const resultContent = document.getElementById('resultContent');
+            
+            let html = `
+                <div class="alert alert-success">
+                     Invoice data extracted successfully!
+                </div>
+                
+                <div class="download-section">
+                    <h3>📥 Download Your Excel File</h3>
+                    <a href="/download/${result.excel_file}" class="download-btn" download>
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"/>
+                        </svg>
+                        Download Excel File
+                    </a>
+                    <p style="margin-top: 12px; color: #6b7280; font-size: 14px;">
+                        File: ${result.excel_file}
+                    </p>
+                </div>
+                
+                <button class="toggle-btn" id="togglePreviewBtn" onclick="toggleDataPreview()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="toggleIcon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    <span id="toggleText">View Data Preview</span>
+                </button>
+                
+                <div class="data-preview hidden" id="dataPreview">
+                    <h3>📋 Extracted Data Preview:</h3>
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+            `;
+            
+            // Add headers
+            Object.keys(result.extracted_data).forEach(key => {
+                html += `<th>${key}</th>`;
+            });
+            
+            html += `
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+            `;
+            
+            // Add data
+            Object.values(result.extracted_data).forEach(value => {
+                html += `<td>${value || 'N/A'}</td>`;
+            });
+            
+            html += `
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            resultContent.innerHTML = html;
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize progress
+        updateProgress(1);
+    </script>
+</body>
+</html>
